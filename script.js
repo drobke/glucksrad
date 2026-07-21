@@ -30,6 +30,7 @@ let count = 0;
 let mixWords = getMixedWords(categories, language);
 let currentWord = "";
 let modalTimer;
+let answerWasShown = false;
 
 const text = {
   de: { eyebrow: "Deutsch lernen · spielerisch", headline: "Uros’ <em>Glücksrad</em>", intro: "Dreh das Rad und entdecke dein nächstes deutsches Wort.", category: "Kategorie auswählen", word: "Dein Wort", spin: "Rad drehen", mix: "Neue Mischung", reveal: "Lösung zeigen", answerTitle: "Die richtige Antwort", correct: "Richtig", wrong: "Falsch", reset: "Neu beginnen", spins: "Drehungen", progress: "Lernfortschritt", scores: "Deine Punkte", scoreReset: "Punkte zurücksetzen", ready: "Bereit?", choose: "Wähle eine Kategorie und drücke auf „Drehen“.", selected: "ausgewählt. Dreh das Rad!", spinning: "Das Rad dreht sich…", answer: "Wusstest du die Antwort?", right: "Super gemacht!", incorrect: "Weiter üben – du schaffst das." },
@@ -97,12 +98,16 @@ function renderLanguage() {
 
 function setAnswerButtons(enabled) { correctButton.disabled = !enabled; wrongButton.disabled = !enabled; }
 function setRevealButton(enabled) { answerButton.disabled = !enabled; }
-function closeModal() { clearTimeout(modalTimer); answerModal.hidden = true; }
+function closeModal(enableScoring = false) {
+  const wasOpen = !answerModal.hidden;
+  clearTimeout(modalTimer); answerModal.hidden = true;
+  if (enableScoring && wasOpen && answerWasShown && currentWord && hasUnscoredAnswer) setAnswerButtons(true);
+}
 function easeOutQuint(t) { return 1 - Math.pow(1 - t, 5); }
 
 function spin() {
   if (spinning) return;
-  spinning = true; spinButton.disabled = true; setAnswerButtons(false); setRevealButton(false); closeModal();
+  spinning = true; answerWasShown = false; spinButton.disabled = true; setAnswerButtons(false); setRevealButton(false); closeModal();
   resultWord.textContent = "…"; resultHint.textContent = text[language].spinning;
   const winner = Math.floor(Math.random() * words().length);
   const sector = sectorSize(), targetBase = -(winner * sector + sector / 2);
@@ -113,7 +118,7 @@ function spin() {
     angle = startAngle + (endAngle - startAngle) * easeOutQuint(progress); drawWheel();
     if (progress < 1) return requestAnimationFrame(animate);
     angle = ((endAngle % (Math.PI * 2)) + Math.PI * 2) % (Math.PI * 2); drawWheel();
-    spinning = false; spinButton.disabled = false; hasUnscoredAnswer = true; setAnswerButtons(true);
+    spinning = false; spinButton.disabled = false; hasUnscoredAnswer = true; setAnswerButtons(false);
     currentWord = words()[winner]; setRevealButton(true);
     count += 1; spinCount.textContent = count; resultWord.textContent = currentWord; resultHint.textContent = text[language].answer;
   }
@@ -124,7 +129,7 @@ function selectCategory(id) {
   if (spinning) return;
   selectedCategory = categories.find((category) => category.id === id);
   if (selectedCategory.isMix) mixWords = getMixedWords(categories, language);
-  angle = 0; currentWord = ""; hasUnscoredAnswer = false; setAnswerButtons(false); setRevealButton(false); closeModal(); resultWord.textContent = text[language].ready;
+  angle = 0; currentWord = ""; answerWasShown = false; hasUnscoredAnswer = false; setAnswerButtons(false); setRevealButton(false); closeModal(); resultWord.textContent = text[language].ready;
   mixButton.hidden = !selectedCategory.isMix;
   resultHint.textContent = `${getCategoryName(selectedCategory, language)} ${text[language].selected}`; renderCategories(); drawWheel();
 }
@@ -132,7 +137,7 @@ function selectCategory(id) {
 function refreshMix() {
   if (spinning || !selectedCategory.isMix) return;
   mixWords = getMixedWords(categories, language);
-  angle = 0; currentWord = ""; hasUnscoredAnswer = false; setAnswerButtons(false); setRevealButton(false); closeModal();
+  angle = 0; currentWord = ""; answerWasShown = false; hasUnscoredAnswer = false; setAnswerButtons(false); setRevealButton(false); closeModal();
   resultWord.textContent = text[language].ready;
   resultHint.textContent = `${getCategoryName(selectedCategory, language)} ${text[language].selected}`;
   drawWheel();
@@ -146,25 +151,26 @@ function recordAnswer(isCorrect) {
 
 function revealAnswer() {
   if (!currentWord) return;
+  answerWasShown = true;
   document.querySelector("#answerModalTitle").textContent = getTranslation(categories, currentWord, language) || currentWord;
   answerModal.hidden = false;
   clearTimeout(modalTimer);
-  modalTimer = window.setTimeout(closeModal, 3000);
+  modalTimer = window.setTimeout(() => closeModal(true), 3000);
 }
 
-function resetWheel() { if (!spinning) { angle = 0; count = 0; currentWord = ""; spinCount.textContent = "0"; resultWord.textContent = text[language].ready; resultHint.textContent = text[language].choose; hasUnscoredAnswer = false; setAnswerButtons(false); setRevealButton(false); closeModal(); drawWheel(); } }
+function resetWheel() { if (!spinning) { angle = 0; count = 0; currentWord = ""; answerWasShown = false; spinCount.textContent = "0"; resultWord.textContent = text[language].ready; resultHint.textContent = text[language].choose; hasUnscoredAnswer = false; setAnswerButtons(false); setRevealButton(false); closeModal(); drawWheel(); } }
 
 categoryButtons.addEventListener("click", (event) => { const id = event.target.dataset.category; if (id) selectCategory(id); });
 wheelStage.addEventListener("click", spin);
 spinButton.addEventListener("click", spin); resetButton.addEventListener("click", resetWheel);
 mixButton.addEventListener("click", refreshMix);
-answerButton.addEventListener("click", revealAnswer); closeAnswerModal.addEventListener("click", closeModal);
+answerButton.addEventListener("click", revealAnswer); closeAnswerModal.addEventListener("click", () => closeModal(true));
 correctButton.addEventListener("click", () => recordAnswer(true)); wrongButton.addEventListener("click", () => recordAnswer(false));
 resetScoresButton.addEventListener("click", () => { scores.reset(); renderScores(); });
 languageSwitch.addEventListener("click", (event) => {
   const nextLanguage = event.target.dataset.language;
   if (!nextLanguage || spinning || nextLanguage === language) return;
-  language = nextLanguage; angle = 0; currentWord = ""; hasUnscoredAnswer = false; setAnswerButtons(false); setRevealButton(false); closeModal();
+  language = nextLanguage; angle = 0; currentWord = ""; answerWasShown = false; hasUnscoredAnswer = false; setAnswerButtons(false); setRevealButton(false); closeModal();
   if (selectedCategory.isMix) mixWords = getMixedWords(categories, language);
   resultWord.textContent = text[language].ready; resultHint.textContent = text[language].choose;
   renderLanguage(); drawWheel();
