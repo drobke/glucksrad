@@ -22,7 +22,7 @@ const closeAnswerModal = document.querySelector("#closeAnswerModal");
 const scores = createScoreboard(categories);
 
 let selectedCategory = categories[0];
-let language = "de";
+let language = "sr";
 let angle = 0;
 let spinning = false;
 let hasUnscoredAnswer = false;
@@ -34,7 +34,7 @@ let answerWasShown = false;
 
 const text = {
   de: { eyebrow: "Deutsch lernen · spielerisch", headline: "Uros’ <em>Glücksrad</em>", intro: "Dreh das Rad und entdecke dein nächstes deutsches Wort.", category: "Kategorie auswählen", word: "Dein Wort", spin: "Rad drehen", mix: "Neue Mischung", reveal: "Lösung zeigen", answerTitle: "Die richtige Antwort", correct: "Richtig", wrong: "Falsch", reset: "Neu beginnen", spins: "Drehungen", progress: "Lernfortschritt", scores: "Deine Punkte", scoreReset: "Punkte zurücksetzen", ready: "Bereit?", choose: "Wähle eine Kategorie und drücke auf „Drehen“.", selected: "ausgewählt. Dreh das Rad!", spinning: "Das Rad dreht sich…", answer: "Wusstest du die Antwort?", right: "Super gemacht!", incorrect: "Weiter üben – du schaffst das." },
-  sr: { eyebrow: "Učenje nemačkog · kroz igru", headline: "Urošev <em>točak sreće</em>", intro: "Zavrti točak i otkrij sledeću nemačku reč.", category: "Izaberi kategoriju", word: "Tvoja reč", spin: "Zavrti točak", mix: "Nova mešavina", reveal: "Prikaži odgovor", answerTitle: "Tačan odgovor", correct: "Tačno", wrong: "Netačno", reset: "Počni ponovo", spins: "okretanja", progress: "Napredak u učenju", scores: "Tvoji poeni", scoreReset: "Obriši poene", ready: "Spremni?", choose: "Izaberi kategoriju i pritisni „Zavrti točak“.", selected: "izabrano. Zavrti točak!", spinning: "Točak se vrti…", answer: "Da li si znao/la odgovor?", right: "Odlično!", incorrect: "Vežbaj dalje – uspećeš." }
+  sr: { eyebrow: "Учење немачког · кроз игру", headline: "Урошев <em>точак среће</em>", intro: "Заврти точак и откриј следећу немачку реч.", category: "Изабери категорију", word: "Твоја реч", spin: "Заврти точак", mix: "Нова мешавина", reveal: "Прикажи одговор", answerTitle: "Тачан одговор", correct: "Тачно", wrong: "Нетачно", reset: "Почни поново", spins: "окретања", progress: "Напредак у учењу", scores: "Твоји поени", scoreReset: "Обриши поене", ready: "Спремни?", choose: "Изабери категорију и притисни „Заврти точак“.", selected: "изабрано. Заврти точак!", spinning: "Точак се врти…", answer: "Да ли си знао/ла одговор?", right: "Одлично!", incorrect: "Вежбај даље – успећеш." }
 };
 
 function words() { return selectedCategory.isMix ? mixWords : getWords(selectedCategory, language); }

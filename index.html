@@ -1,9 +1,9 @@
 <!doctype html>
-<html lang="de">
+<html lang="sr">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Uros' Glücksrad</title>
+    <title>Урошев точак среће</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Fraunces:opsz,wght@9..144,600;9..144,700&display=swap" rel="stylesheet" />
@@ -12,17 +12,17 @@
   <body>
     <main class="page-shell">
       <header>
-        <div class="language-switch" aria-label="Sprache auswählen">
-          <button type="button" data-language="de" class="is-active">Deutsch</button>
-          <button type="button" data-language="sr">Srpski</button>
+        <div class="language-switch" aria-label="Изабери језик">
+          <button type="button" data-language="de">Deutsch</button>
+          <button type="button" data-language="sr" class="is-active">Srpski</button>
         </div>
-        <p id="eyebrow" class="eyebrow">Deutsch lernen · spielerisch</p>
-        <h1 id="headline">Uros’ <em>Glücksrad</em></h1>
-        <p id="intro" class="intro">Dreh das Rad und entdecke dein nächstes deutsches Wort.</p>
+        <p id="eyebrow" class="eyebrow">Учење немачког · кроз игру</p>
+        <h1 id="headline">Урошев <em>точак среће</em></h1>
+        <p id="intro" class="intro">Заврти точак и откриј следећу немачку реч.</p>
       </header>
 
-      <section class="category-picker" aria-label="Wortkategorie auswählen">
-        <p id="categoryLabel" class="label">Kategorie auswählen</p>
+      <section class="category-picker" aria-label="Изабери категорију">
+        <p id="categoryLabel" class="label">Изабери категорију</p>
         <div id="categoryButtons" class="category-buttons"></div>
       </section>
 
@@ -30,16 +30,16 @@
         <div class="wheel-stage" id="wheelStage">
           <div class="pointer" aria-hidden="true"></div>
           <canvas id="wheel" width="900" height="900" aria-label="Drehbares Glücksrad"></canvas>
-          <div class="wheel-center" aria-hidden="true"><span>LOS</span></div>
+          <div class="wheel-center" aria-hidden="true"><img src="assets/uros-wheel-center.png" alt="" /></div>
         </div>
 
         <aside class="controls">
-          <p id="wordLabel" class="label">Dein Wort</p>
+          <p id="wordLabel" class="label">Твоја реч</p>
           <div class="word-display" aria-live="polite" aria-atomic="true">
-            <span id="resultWord">Bereit?</span>
+            <span id="resultWord">Спремни?</span>
           </div>
-          <p id="resultHint" class="result-hint">Wähle eine Kategorie und drücke auf „Drehen“.</p>
-          <button id="spinButton" type="button"><span id="spinText">Rad drehen</span> <span aria-hidden="true">↻</span></button>
+          <p id="resultHint" class="result-hint">Изабери категорију и притисни „Заврти точак“.</p>
+          <button id="spinButton" type="button"><span id="spinText">Заврти точак</span> <span aria-hidden="true">↻</span></button>
           <button id="mixButton" type="button" class="mix-button" hidden>Neue Mischung</button>
           <button id="answerButton" type="button" class="answer-reveal" disabled>💡 <span id="answerText">Lösung zeigen</span></button>
           <div class="answer-buttons" aria-label="Antwort bewerten">
