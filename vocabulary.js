@@ -29,11 +29,16 @@ const cyrillicLetters = {
   A: "А", B: "Б", C: "Ц", Č: "Ч", Ć: "Ћ", D: "Д", Đ: "Ђ", E: "Е", F: "Ф", G: "Г", H: "Х", I: "И", J: "Ј", K: "К", L: "Л", M: "М", N: "Н", O: "О", P: "П", R: "Р", S: "С", Š: "Ш", T: "Т", U: "У", V: "В", Z: "З", Ž: "Ж",
   a: "а", b: "б", c: "ц", č: "ч", ć: "ћ", d: "д", đ: "ђ", e: "е", f: "ф", g: "г", h: "х", i: "и", j: "ј", k: "к", l: "л", m: "м", n: "н", o: "о", p: "п", r: "р", s: "с", š: "ш", t: "т", u: "у", v: "в", z: "з", ž: "ж"
 };
-const cyrillicPattern = /DŽ|Dž|dž|LJ|Lj|lj|NJ|Nj|nj|[ABCČĆDĐEFGHIJKLMNOPRSŠTUVZŽabcčćdđefghijklmnoprstuvzž]/g;
+const cyrillicPattern = /DŽ|Dž|dž|LJ|Lj|lj|NJ|Nj|nj|[ABCČĆDĐEFGHIJKLMNOPRSŠTUVZŽabcčćdđefghijklmnoprstuvzžš]/g;
 const toCyrillic = (value) => value.replace(cyrillicPattern, (letter) => cyrillicLetters[letter]);
 
-const getWords = (category, language) => language === "sr" ? category.words.sr.map(toCyrillic) : category.words.de;
-const getCategoryName = (category, language) => language === "sr" ? toCyrillic(category.names.sr) : category.names.de;
+categories.forEach((category) => {
+  category.names.sr = toCyrillic(category.names.sr);
+  category.words.sr = category.words.sr.map(toCyrillic);
+});
+
+const getWords = (category, language) => category.words[language];
+const getCategoryName = (category, language) => category.names[language];
 
 function getTranslation(categoryList, word, language) {
   const otherLanguage = language === "de" ? "sr" : "de";
@@ -65,5 +70,14 @@ function createScoreboard(categoryList) {
   };
 }
 
-global.Vocabulary = { categories, createScoreboard, getCategoryName, getMixedWords, getTranslation, getWords, toCyrillic };
+function createAnswerLog() {
+  const values = [];
+  return {
+    entries() { return values.map((entry) => ({ ...entry })); },
+    record(entry) { values.push({ ...entry }); },
+    reset() { values.length = 0; }
+  };
+}
+
+global.Vocabulary = { categories, createAnswerLog, createScoreboard, getCategoryName, getMixedWords, getTranslation, getWords, toCyrillic };
 })(typeof window !== "undefined" ? window : globalThis);

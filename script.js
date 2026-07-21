@@ -1,4 +1,4 @@
-const { categories, createScoreboard, getCategoryName, getMixedWords, getTranslation, getWords } = window.Vocabulary;
+const { categories, createAnswerLog, createScoreboard, getCategoryName, getMixedWords, getTranslation, getWords } = window.Vocabulary;
 
 const colors = ["#ef5b37", "#f4b942", "#1d8b87", "#f9d9a6", "#4c6c8c"];
 const canvas = document.querySelector("#wheel");
@@ -14,12 +14,16 @@ const spinCount = document.querySelector("#spinCount");
 const categoryButtons = document.querySelector("#categoryButtons");
 const scoreTable = document.querySelector("#scoreTable");
 const resetScoresButton = document.querySelector("#resetScoresButton");
+const exportScoresButton = document.querySelector("#exportScoresButton");
 const languageSwitch = document.querySelector(".language-switch");
 const mixButton = document.querySelector("#mixButton");
 const answerButton = document.querySelector("#answerButton");
 const answerModal = document.querySelector("#answerModal");
 const closeAnswerModal = document.querySelector("#closeAnswerModal");
+const validationModal = document.querySelector("#validationModal");
+const validationMessage = document.querySelector("#validationMessage");
 const scores = createScoreboard(categories);
+const answerLog = createAnswerLog();
 
 let selectedCategory = categories[0];
 let language = "sr";
@@ -31,10 +35,11 @@ let mixWords = getMixedWords(categories, language);
 let currentWord = "";
 let modalTimer;
 let answerWasShown = false;
+let validationTimer;
 
 const text = {
-  de: { eyebrow: "Deutsch lernen · spielerisch", headline: "Uros’ <em>Glücksrad</em>", intro: "Dreh das Rad und entdecke dein nächstes deutsches Wort.", category: "Kategorie auswählen", word: "Dein Wort", spin: "Rad drehen", mix: "Neue Mischung", reveal: "Lösung zeigen", answerTitle: "Die richtige Antwort", correct: "Richtig", wrong: "Falsch", reset: "Neu beginnen", spins: "Drehungen", progress: "Lernfortschritt", scores: "Deine Punkte", scoreReset: "Punkte zurücksetzen", ready: "Bereit?", choose: "Wähle eine Kategorie und drücke auf „Drehen“.", selected: "ausgewählt. Dreh das Rad!", spinning: "Das Rad dreht sich…", answer: "Wusstest du die Antwort?", right: "Super gemacht!", incorrect: "Weiter üben – du schaffst das." },
-  sr: { eyebrow: "Учење немачког · кроз игру", headline: "Урошев <em>точак среће</em>", intro: "Заврти точак и откриј следећу немачку реч.", category: "Изабери категорију", word: "Твоја реч", spin: "Заврти точак", mix: "Нова мешавина", reveal: "Прикажи одговор", answerTitle: "Тачан одговор", correct: "Тачно", wrong: "Нетачно", reset: "Почни поново", spins: "окретања", progress: "Напредак у учењу", scores: "Твоји поени", scoreReset: "Обриши поене", ready: "Спремни?", choose: "Изабери категорију и притисни „Заврти точак“.", selected: "изабрано. Заврти точак!", spinning: "Точак се врти…", answer: "Да ли си знао/ла одговор?", right: "Одлично!", incorrect: "Вежбај даље – успећеш." }
+  de: { eyebrow: "Deutsch lernen · spielerisch", headline: "Uros’ <em>Glücksrad</em>", intro: "Dreh das Rad und entdecke dein nächstes deutsches Wort.", category: "Kategorie auswählen", word: "Dein Wort", spin: "Rad drehen", mix: "Neue Mischung", reveal: "Lösung zeigen", answerTitle: "Die richtige Antwort", validation: "Zeige zuerst die Lösung. Danach kannst du die Antwort als richtig oder falsch markieren.", spinFirst: "Drehe zuerst das Rad, bevor du die Lösung zeigst.", correct: "Richtig", wrong: "Falsch", reset: "Neu beginnen", spins: "Drehungen", progress: "Lernfortschritt", scores: "Deine Punkte", scoreReset: "Punkte zurücksetzen", export: "CSV für Google Sheets speichern", ready: "Bereit?", choose: "Wähle eine Kategorie und drücke auf „Drehen“.", selected: "ausgewählt. Dreh das Rad!", spinning: "Das Rad dreht sich…", answer: "Wusstest du die Antwort?", right: "Super gemacht!", incorrect: "Weiter üben – du schaffst das." },
+  sr: { eyebrow: "Учење немачког · кроз игру", headline: "Урошев <em>точак среће</em>", intro: "Заврти точак и откриј следећу немачку реч.", category: "Изабери категорију", word: "Твоја реч", spin: "Заврти точак", mix: "Нова мешавина", reveal: "Прикажи одговор", answerTitle: "Тачан одговор", validation: "Потребно је прво приказати одговор. Након тога можете означити да ли је одговор тачан или нетачан.", spinFirst: "Потребно је прво завртети точак, па тек онда приказати одговор.", correct: "Тачно", wrong: "Нетачно", reset: "Почни поново", spins: "окретања", progress: "Напредак у учењу", scores: "Твоји поени", scoreReset: "Обриши поене", export: "Сачувај CSV за Google Sheets", ready: "Спремни?", choose: "Изабери категорију и притисни „Заврти точак“.", selected: "изабрано. Заврти точак!", spinning: "Точак се врти…", answer: "Да ли си знао/ла одговор?", right: "Одлично!", incorrect: "Вежбај даље – успећеш." }
 };
 
 function words() { return selectedCategory.isMix ? mixWords : getWords(selectedCategory, language); }
@@ -92,12 +97,34 @@ function renderLanguage() {
   document.querySelector("#progressLabel").textContent = copy.progress;
   document.querySelector("#scoreTitle").textContent = copy.scores;
   resetScoresButton.textContent = copy.scoreReset;
+  exportScoresButton.textContent = copy.export;
   languageSwitch.querySelectorAll("button").forEach((button) => button.classList.toggle("is-active", button.dataset.language === language));
   renderCategories(); renderScores();
 }
 
-function setAnswerButtons(enabled) { correctButton.disabled = !enabled; wrongButton.disabled = !enabled; }
-function setRevealButton(enabled) { answerButton.disabled = !enabled; }
+function setAnswerButtons(enabled) {
+  [correctButton, wrongButton].forEach((button) => {
+    button.classList.toggle("is-disabled", !enabled);
+    button.setAttribute("aria-disabled", String(!enabled));
+  });
+}
+function setRevealButton(enabled) {
+  answerButton.classList.toggle("is-disabled", !enabled);
+  answerButton.setAttribute("aria-disabled", String(!enabled));
+}
+function closeValidationModal() { clearTimeout(validationTimer); validationModal.hidden = true; }
+function showScoringValidation() {
+  validationMessage.textContent = text[language].validation;
+  validationModal.hidden = false;
+  clearTimeout(validationTimer);
+  validationTimer = window.setTimeout(closeValidationModal, 2000);
+}
+function showRevealValidation() {
+  validationMessage.textContent = text[language].spinFirst;
+  validationModal.hidden = false;
+  clearTimeout(validationTimer);
+  validationTimer = window.setTimeout(closeValidationModal, 2000);
+}
 function closeModal(enableScoring = false) {
   const wasOpen = !answerModal.hidden;
   clearTimeout(modalTimer); answerModal.hidden = true;
@@ -144,13 +171,30 @@ function refreshMix() {
 }
 
 function recordAnswer(isCorrect) {
-  if (!hasUnscoredAnswer) return;
-  scores.record(selectedCategory.id, isCorrect); hasUnscoredAnswer = false; setAnswerButtons(false); renderScores();
+  if (!hasUnscoredAnswer || !answerWasShown || !answerModal.hidden) { showScoringValidation(); return; }
+  scores.record(selectedCategory.id, isCorrect);
+  answerLog.record({ category: getCategoryName(selectedCategory, language), word: currentWord, correct: isCorrect });
+  hasUnscoredAnswer = false; setAnswerButtons(false); renderScores();
   resultHint.textContent = isCorrect ? text[language].right : text[language].incorrect;
 }
 
+function csvCell(value) { return `"${String(value).replaceAll('"', '""')}"`; }
+function exportScores() {
+  const copy = text[language];
+  const summary = categories.map((category) => {
+    const score = scores.get(category.id);
+    return [getCategoryName(category, language), score.correct, score.wrong];
+  });
+  const details = answerLog.entries().map((entry) => [entry.category, entry.word, entry.correct ? copy.correct : copy.wrong]);
+  const rows = [[copy.scores], [copy.category, copy.correct, copy.wrong], ...summary, [], ["Odgovori"], [copy.category, copy.word, "Odgovor"], ...details];
+  const csv = `\ufeff${rows.map((row) => row.map(csvCell).join(",")).join("\n")}`;
+  const url = URL.createObjectURL(new Blob([csv], { type: "text/csv;charset=utf-8" }));
+  const link = document.createElement("a");
+  link.href = url; link.download = "uros-tocak-poeni.csv"; link.click(); URL.revokeObjectURL(url);
+}
+
 function revealAnswer() {
-  if (!currentWord) return;
+  if (!currentWord) { showRevealValidation(); return; }
   answerWasShown = true;
   document.querySelector("#answerModalTitle").textContent = getTranslation(categories, currentWord, language) || currentWord;
   answerModal.hidden = false;
@@ -166,7 +210,8 @@ spinButton.addEventListener("click", spin); resetButton.addEventListener("click"
 mixButton.addEventListener("click", refreshMix);
 answerButton.addEventListener("click", revealAnswer); closeAnswerModal.addEventListener("click", () => closeModal(true));
 correctButton.addEventListener("click", () => recordAnswer(true)); wrongButton.addEventListener("click", () => recordAnswer(false));
-resetScoresButton.addEventListener("click", () => { scores.reset(); renderScores(); });
+resetScoresButton.addEventListener("click", () => { scores.reset(); answerLog.reset(); renderScores(); });
+exportScoresButton.addEventListener("click", exportScores);
 languageSwitch.addEventListener("click", (event) => {
   const nextLanguage = event.target.dataset.language;
   if (!nextLanguage || spinning || nextLanguage === language) return;

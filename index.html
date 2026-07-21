@@ -6,12 +6,17 @@
     <title>Урошев точак среће</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Fraunces:opsz,wght@9..144,600;9..144,700&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Mono:wght@400;500&family=Noto+Serif:ital,wght@0,600;0,700;1,600;1,700&display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="styles.css" />
   </head>
   <body>
     <main class="page-shell">
       <header>
+        <nav class="app-nav" aria-label="Glavni meni">
+          <a href="index.html" class="is-active">Točak sreće</a>
+          <a href="prepositions.html">Predlozi</a>
+          <a href="articles.html">Članovi</a>
+        </nav>
         <div class="language-switch" aria-label="Изабери језик">
           <button type="button" data-language="de">Deutsch</button>
           <button type="button" data-language="sr" class="is-active">Srpski</button>
@@ -41,10 +46,10 @@
           <p id="resultHint" class="result-hint">Изабери категорију и притисни „Заврти точак“.</p>
           <button id="spinButton" type="button"><span id="spinText">Заврти точак</span> <span aria-hidden="true">↻</span></button>
           <button id="mixButton" type="button" class="mix-button" hidden>Neue Mischung</button>
-          <button id="answerButton" type="button" class="answer-reveal" disabled>💡 <span id="answerText">Lösung zeigen</span></button>
+          <button id="answerButton" type="button" class="answer-reveal is-disabled" aria-disabled="true">💡 <span id="answerText">Lösung zeigen</span></button>
           <div class="answer-buttons" aria-label="Antwort bewerten">
-            <button id="correctButton" type="button" class="correct" disabled>✓ <span id="correctText">Richtig</span></button>
-            <button id="wrongButton" type="button" class="wrong" disabled>✕ <span id="wrongText">Falsch</span></button>
+            <button id="correctButton" type="button" class="correct is-disabled" aria-disabled="true">✓ <span id="correctText">Richtig</span></button>
+            <button id="wrongButton" type="button" class="wrong is-disabled" aria-disabled="true">✕ <span id="wrongText">Falsch</span></button>
           </div>
           <button id="resetButton" type="button" class="reset">Neu beginnen</button>
           <p class="spin-count"><span id="spinCount">0</span> <span id="spinsText">Drehungen</span></p>
@@ -58,6 +63,7 @@
             <h2 id="scoreTitle">Deine Punkte</h2>
           </div>
           <button id="resetScoresButton" class="score-reset" type="button">Punkte zurücksetzen</button>
+          <button id="exportScoresButton" class="score-export" type="button">Сачувај CSV</button>
         </div>
         <div id="scoreTable" class="score-table" aria-live="polite"></div>
       </section>
@@ -71,7 +77,12 @@
         <h2 id="answerModalTitle"></h2>
       </div>
     </div>
-    <script src="vocabulary.js"></script>
-    <script src="script.js"></script>
+    <div id="validationModal" class="answer-modal" role="alertdialog" aria-modal="true" aria-live="assertive" hidden>
+      <div class="answer-modal-card validation-card">
+        <p id="validationMessage"></p>
+      </div>
+    </div>
+    <script src="vocabulary.js?v=9"></script>
+    <script src="script.js?v=9"></script>
   </body>
 </html>

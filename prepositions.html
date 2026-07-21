@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="de">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Deutsche Präpositionen</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Mono:wght@400;500&family=Noto+Serif:ital,wght@0,600;0,700;1,600;1,700&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <main class="page-shell practice-page">
+      <nav class="app-nav" aria-label="Glavni meni">
+        <a href="index.html">Točak sreće</a>
+        <a href="prepositions.html" class="is-active">Präpositionen</a>
+        <a href="articles.html">Artikel</a>
+      </nav>
+      <header>
+        <p class="eyebrow">Deutsch üben · Satz für Satz</p>
+        <h1>Deutsche <em>Präpositionen</em></h1>
+        <p class="intro">Wähle die passende Präposition. Nach deiner Antwort geht es in 5 Sekunden weiter.</p>
+      </header>
+
+      <section class="preposition-game" aria-labelledby="prepositionTitle">
+        <p class="label">Welche Präposition passt?</p>
+        <h2 id="prepositionPrompt" class="preposition-prompt"></h2>
+        <div id="prepositionOptions" class="preposition-options" aria-live="polite"></div>
+        <p id="prepositionFeedback" class="preposition-feedback" aria-live="assertive"></p>
+      </section>
+
+      <section class="preposition-score" aria-label="Ergebnis">
+        <div>
+          <p class="label">Dein Ergebnis</p>
+          <p><strong id="prepositionCorrect">0</strong> Richtig</p>
+          <p><strong id="prepositionWrong">0</strong> Falsch</p>
+        </div>
+        <button id="resetPrepositionScore" type="button" class="score-reset">Punkte zurücksetzen</button>
+      </section>
+      <footer>Viel Erfolg beim Üben!</footer>
+    </main>
+    <script src="prepositions-data.js"></script>
+    <script src="prepositions.js"></script>
+  </body>
+</html>
