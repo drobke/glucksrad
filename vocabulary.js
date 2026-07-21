@@ -17,11 +17,25 @@ const categories = [
   { id: "wetter", name: "Wetter", names: { de: "Wetter", sr: "Vreme" }, words: vocabulary(["sonnig", "bewölkt", "regnerisch", "windig", "die Sonne scheint", "der Regenbogen"], ["sunčano", "oblačno", "kišovito", "vetrovito", "sunce sija", "duga"]) },
   { id: "jahreszeiten", name: "Jahreszeiten", names: { de: "Jahreszeiten", sr: "Godišnja doba" }, words: vocabulary(["der Frühling", "der Sommer", "der Herbst", "der Winter"], ["proleće", "leto", "jesen", "zima"]) },
   { id: "monate", name: "Monate", names: { de: "Monate", sr: "Meseci u godini" }, words: vocabulary(["Januar", "Februar", "März", "April", "Mai", "Juni", "Juli", "August", "September", "Oktober", "November", "Dezember"], ["januar", "februar", "mart", "april", "maj", "jun", "jul", "avgust", "septembar", "oktobar", "novembar", "decembar"]) },
+  { id: "sport-1", name: "Sport 1", names: { de: "Sport 1", sr: "Sport 1" }, words: vocabulary(["der Fußball", "der Basketball", "der Volleyball", "das Tennis", "das Schwimmen", "das Radfahren", "das Laufen", "der Sport"], ["fudbal", "košarka", "odbojka", "tenis", "plivanje", "vožnja bicikla", "trčanje", "sport"]) },
+  { id: "sport-2", name: "Sport 2", names: { de: "Sport 2", sr: "Sport 2" }, words: vocabulary(["das Spiel", "die Mannschaft", "der Ball", "das Tor", "der Spieler", "der Trainer", "das Stadion"], ["igra", "tim", "lopta", "gol", "igrač", "trener", "stadion"]) },
+  { id: "laender", name: "Länder", names: { de: "Länder", sr: "Države" }, words: vocabulary(["Deutschland", "Serbien", "Spanien", "Frankreich", "Italien", "Brasilien", "England", "Argentinien"], ["Nemačka", "Srbija", "Španija", "Francuska", "Italija", "Brazil", "Engleska", "Argentina"]) },
+  { id: "sprachen", name: "Sprachen", names: { de: "Sprachen", sr: "Jezici" }, words: vocabulary(["Deutsch", "Serbisch", "Englisch", "Spanisch", "Französisch"], ["nemački", "srpski", "engleski", "španski", "francuski"]) },
   { id: "mix", name: "Mix", names: { de: "Mix", sr: "Mešano" }, words: vocabulary([], []), isMix: true }
 ];
 
 const getWords = (category, language) => category.words[language];
 const getCategoryName = (category, language) => category.names[language];
+
+function getTranslation(categoryList, word, language) {
+  const otherLanguage = language === "de" ? "sr" : "de";
+  for (const category of categoryList) {
+    if (category.isMix) continue;
+    const wordIndex = getWords(category, language).indexOf(word);
+    if (wordIndex !== -1) return getWords(category, otherLanguage)[wordIndex];
+  }
+  return "";
+}
 
 function getMixedWords(categoryList, language, random = Math.random) {
   const uniqueWords = [...new Set(categoryList.filter((category) => !category.isMix).flatMap((category) => getWords(category, language)))];
@@ -43,5 +57,5 @@ function createScoreboard(categoryList) {
   };
 }
 
-global.Vocabulary = { categories, createScoreboard, getWords, getCategoryName, getMixedWords };
+global.Vocabulary = { categories, createScoreboard, getCategoryName, getMixedWords, getTranslation, getWords };
 })(typeof window !== "undefined" ? window : globalThis);

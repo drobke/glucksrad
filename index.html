@@ -27,7 +27,7 @@
       </section>
 
       <section class="game" aria-label="Glücksrad mit deutschen Wörtern">
-        <div class="wheel-stage">
+        <div class="wheel-stage" id="wheelStage">
           <div class="pointer" aria-hidden="true"></div>
           <canvas id="wheel" width="900" height="900" aria-label="Drehbares Glücksrad"></canvas>
           <div class="wheel-center" aria-hidden="true"><span>LOS</span></div>
@@ -41,6 +41,7 @@
           <p id="resultHint" class="result-hint">Wähle eine Kategorie und drücke auf „Drehen“.</p>
           <button id="spinButton" type="button"><span id="spinText">Rad drehen</span> <span aria-hidden="true">↻</span></button>
           <button id="mixButton" type="button" class="mix-button" hidden>Neue Mischung</button>
+          <button id="answerButton" type="button" class="answer-reveal" disabled>💡 <span id="answerText">Lösung zeigen</span></button>
           <div class="answer-buttons" aria-label="Antwort bewerten">
             <button id="correctButton" type="button" class="correct" disabled>✓ <span id="correctText">Richtig</span></button>
             <button id="wrongButton" type="button" class="wrong" disabled>✕ <span id="wrongText">Falsch</span></button>
@@ -63,6 +64,13 @@
 
       <footer>Viel Glück beim Lernen!</footer>
     </main>
+    <div id="answerModal" class="answer-modal" role="dialog" aria-modal="true" aria-labelledby="answerModalTitle" hidden>
+      <div class="answer-modal-card">
+        <button id="closeAnswerModal" class="modal-close" type="button" aria-label="Close">×</button>
+        <p id="answerModalLabel" class="label">Die richtige Antwort</p>
+        <h2 id="answerModalTitle"></h2>
+      </div>
+    </div>
     <script src="vocabulary.js"></script>
     <script src="script.js"></script>
   </body>
