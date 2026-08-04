@@ -1,4 +1,4 @@
-const { categories, createAnswerLog, createScoreboard, getCategoryName, getMixedWords, getTranslation, getWords } = window.Vocabulary;
+const { categories, createAnswerLog, createScoreboard, createWheelWordPool, getCategoryName, getMixedWords, getTranslation, getWords } = window.Vocabulary;
 
 const colors = ["#ef5b37", "#f4b942", "#1d8b87", "#f9d9a6", "#4c6c8c"];
 const canvas = document.querySelector("#wheel");
@@ -17,6 +17,7 @@ const resetScoresButton = document.querySelector("#resetScoresButton");
 const exportScoresButton = document.querySelector("#exportScoresButton");
 const languageSwitch = document.querySelector(".language-switch");
 const mixButton = document.querySelector("#mixButton");
+const resetWordsButton = document.querySelector("#resetWordsButton");
 const answerButton = document.querySelector("#answerButton");
 const answerModal = document.querySelector("#answerModal");
 const closeAnswerModal = document.querySelector("#closeAnswerModal");
@@ -24,6 +25,7 @@ const validationModal = document.querySelector("#validationModal");
 const validationMessage = document.querySelector("#validationMessage");
 const scores = createScoreboard(categories);
 const answerLog = createAnswerLog();
+const wheelWordPool = createWheelWordPool(categories);
 
 let selectedCategory = categories[0];
 let language = "sr";
@@ -38,11 +40,11 @@ let answerWasShown = false;
 let validationTimer;
 
 const text = {
-  de: { eyebrow: "Deutsch lernen · spielerisch", headline: "Uros’ <em>Glücksrad</em>", intro: "Dreh das Rad und entdecke dein nächstes deutsches Wort.", category: "Kategorie auswählen", word: "Dein Wort", spin: "Rad drehen", mix: "Neue Mischung", reveal: "Lösung zeigen", answerTitle: "Die richtige Antwort", validation: "Zeige zuerst die Lösung. Danach kannst du die Antwort als richtig oder falsch markieren.", spinFirst: "Drehe zuerst das Rad, bevor du die Lösung zeigst.", correct: "Richtig", wrong: "Falsch", reset: "Neu beginnen", spins: "Drehungen", progress: "Lernfortschritt", scores: "Deine Punkte", scoreReset: "Punkte zurücksetzen", export: "CSV für Google Sheets speichern", ready: "Bereit?", choose: "Wähle eine Kategorie und drücke auf „Drehen“.", selected: "ausgewählt. Dreh das Rad!", spinning: "Das Rad dreht sich…", answer: "Wusstest du die Antwort?", right: "Super gemacht!", incorrect: "Weiter üben – du schaffst das." },
-  sr: { eyebrow: "Учење немачког · кроз игру", headline: "Урошев <em>точак среће</em>", intro: "Заврти точак и откриј следећу немачку реч.", category: "Изабери категорију", word: "Твоја реч", spin: "Заврти точак", mix: "Нова мешавина", reveal: "Прикажи одговор", answerTitle: "Тачан одговор", validation: "Потребно је прво приказати одговор. Након тога можете означити да ли је одговор тачан или нетачан.", spinFirst: "Потребно је прво завртети точак, па тек онда приказати одговор.", correct: "Тачно", wrong: "Нетачно", reset: "Почни поново", spins: "окретања", progress: "Напредак у учењу", scores: "Твоји поени", scoreReset: "Обриши поене", export: "Сачувај CSV за Google Sheets", ready: "Спремни?", choose: "Изабери категорију и притисни „Заврти точак“.", selected: "изабрано. Заврти точак!", spinning: "Точак се врти…", answer: "Да ли си знао/ла одговор?", right: "Одлично!", incorrect: "Вежбај даље – успећеш." }
+  de: { eyebrow: "Deutsch lernen · spielerisch", headline: "Uros’ <em>Glücksrad</em>", intro: "Dreh das Rad und entdecke dein nächstes deutsches Wort.", category: "Kategorie auswählen", word: "Dein Wort", spin: "Rad drehen", mix: "Neue Mischung", resetWords: "Alle Wörter zurücksetzen", roundReset: "Alle Wörter sind wieder auf dem Rad.", reveal: "Lösung zeigen", answerTitle: "Die richtige Antwort", validation: "Zeige zuerst die Lösung. Danach kannst du die Antwort als richtig oder falsch markieren.", spinFirst: "Drehe zuerst das Rad, bevor du die Lösung zeigst.", correct: "Richtig", wrong: "Falsch", reset: "Neu beginnen", spins: "Drehungen", progress: "Lernfortschritt", scores: "Deine Punkte", scoreReset: "Punkte zurücksetzen", export: "CSV für Google Sheets speichern", ready: "Bereit?", choose: "Wähle eine Kategorie und drücke auf „Drehen“.", selected: "ausgewählt. Dreh das Rad!", spinning: "Das Rad dreht sich…", answer: "Wusstest du die Antwort?", right: "Super gemacht!", incorrect: "Weiter üben – du schaffst das." },
+  sr: { eyebrow: "Учење немачког · кроз игру", headline: "Урошев <em>точак среће</em>", intro: "Заврти точак и откриј следећу немачку реч.", category: "Изабери категорију", word: "Твоја реч", spin: "Заврти точак", mix: "Нова мешавина", resetWords: "Врати све речи", roundReset: "Све речи су поново на точку.", reveal: "Прикажи одговор", answerTitle: "Тачан одговор", validation: "Потребно је прво приказати одговор. Након тога можете означити да ли је одговор тачан или нетачан.", spinFirst: "Потребно је прво завртети точак, па тек онда приказати одговор.", correct: "Тачно", wrong: "Нетачно", reset: "Почни поново", spins: "окретања", progress: "Напредак у учењу", scores: "Твоји поени", scoreReset: "Обриши поене", export: "Сачувај CSV за Google Sheets", ready: "Спремни?", choose: "Изабери категорију и притисни „Заврти точак“.", selected: "изабрано. Заврти точак!", spinning: "Точак се врти…", answer: "Да ли си знао/ла одговор?", right: "Одлично!", incorrect: "Вежбај даље – успећеш." }
 };
 
-function words() { return selectedCategory.isMix ? mixWords : getWords(selectedCategory, language); }
+function words() { return selectedCategory.isMix ? mixWords : wheelWordPool.words(selectedCategory, language); }
 function sectorSize() { return (Math.PI * 2) / words().length; }
 
 function drawWheel() {
@@ -88,6 +90,7 @@ function renderLanguage() {
   document.querySelector("#wordLabel").textContent = copy.word;
   document.querySelector("#spinText").textContent = copy.spin;
   mixButton.textContent = copy.mix;
+  resetWordsButton.textContent = copy.resetWords;
   document.querySelector("#answerText").textContent = copy.reveal;
   document.querySelector("#answerModalLabel").textContent = copy.answerTitle;
   document.querySelector("#correctText").textContent = copy.correct;
@@ -134,6 +137,7 @@ function easeOutQuint(t) { return 1 - Math.pow(1 - t, 5); }
 
 function spin() {
   if (spinning) return;
+  if (currentWord) { consumeWheelWord(); currentWord = ""; drawWheel(); }
   spinning = true; answerWasShown = false; spinButton.disabled = true; setAnswerButtons(false); setRevealButton(false); closeModal();
   resultWord.textContent = "…"; resultHint.textContent = text[language].spinning;
   const winner = Math.floor(Math.random() * words().length);
@@ -167,6 +171,27 @@ function refreshMix() {
   angle = 0; currentWord = ""; answerWasShown = false; hasUnscoredAnswer = false; setAnswerButtons(false); setRevealButton(false); closeModal();
   resultWord.textContent = text[language].ready;
   resultHint.textContent = `${getCategoryName(selectedCategory, language)} ${text[language].selected}`;
+  drawWheel();
+}
+
+function consumeWheelWord() {
+  if (selectedCategory.isMix) {
+    mixWords = mixWords.filter((word) => word !== currentWord);
+    if (mixWords.length > 0) return false;
+    mixWords = getMixedWords(categories, language);
+    return true;
+  }
+  return wheelWordPool.consume(selectedCategory, language, currentWord);
+}
+
+function resetWheelWords() {
+  if (spinning) return;
+  if (selectedCategory.isMix) mixWords = getMixedWords(categories, language);
+  else wheelWordPool.reset(selectedCategory);
+  currentWord = ""; answerWasShown = false; hasUnscoredAnswer = false;
+  setAnswerButtons(false); setRevealButton(false); closeModal();
+  resultWord.textContent = text[language].ready;
+  resultHint.textContent = `${getCategoryName(selectedCategory, language)} ${text[language].roundReset}`;
   drawWheel();
 }
 
@@ -208,6 +233,7 @@ categoryButtons.addEventListener("click", (event) => { const id = event.target.d
 wheelStage.addEventListener("click", spin);
 spinButton.addEventListener("click", spin); resetButton.addEventListener("click", resetWheel);
 mixButton.addEventListener("click", refreshMix);
+resetWordsButton.addEventListener("click", resetWheelWords);
 answerButton.addEventListener("click", revealAnswer); closeAnswerModal.addEventListener("click", () => closeModal(true));
 correctButton.addEventListener("click", () => recordAnswer(true)); wrongButton.addEventListener("click", () => recordAnswer(false));
 resetScoresButton.addEventListener("click", () => { scores.reset(); answerLog.reset(); renderScores(); });

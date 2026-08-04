@@ -56,6 +56,8 @@ button:hover:not(:disabled) { transform: translate(2px, 2px); box-shadow: 2px 2p
 button:disabled { cursor: wait; opacity: .7; }
 .mix-button { margin-top: 12px; padding: 11px; color: var(--ink); background: var(--gold); box-shadow: none; font-size: .68rem; }
 .mix-button:hover:not(:disabled) { color: var(--cream); background: var(--teal); box-shadow: none; transform: none; }
+.reset-words { margin-top: 12px; padding: 10px; color: var(--ink); background: transparent; border: 1px solid var(--ink); box-shadow: none; font-size: .64rem; }
+.reset-words:hover:not(:disabled) { color: var(--cream); background: var(--ink); box-shadow: none; transform: none; }
 .answer-reveal { margin-top: 12px; padding: 11px; color: var(--cream); background: #4c6c8c; box-shadow: none; font-size: .68rem; }
 .answer-reveal:hover:not(:disabled) { background: var(--teal); box-shadow: none; transform: none; }
 .answer-reveal.is-disabled { cursor: not-allowed; opacity: .55; filter: grayscale(.2); }

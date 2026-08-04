@@ -79,5 +79,21 @@ function createAnswerLog() {
   };
 }
 
-global.Vocabulary = { categories, createAnswerLog, createScoreboard, getCategoryName, getMixedWords, getTranslation, getWords, toCyrillic };
+function createWheelWordPool(categoryList) {
+  const availableIndexes = Object.fromEntries(categoryList.filter((category) => !category.isMix).map((category) => [category.id, getWords(category, "de").map((_, index) => index)]));
+  const allIndexes = (category) => getWords(category, "de").map((_, index) => index);
+  return {
+    words(category, language) { return availableIndexes[category.id].map((index) => getWords(category, language)[index]); },
+    consume(category, language, word) {
+      const wordIndex = getWords(category, language).indexOf(word);
+      availableIndexes[category.id] = availableIndexes[category.id].filter((index) => index !== wordIndex);
+      if (availableIndexes[category.id].length > 0) return false;
+      availableIndexes[category.id] = allIndexes(category);
+      return true;
+    },
+    reset(category) { availableIndexes[category.id] = allIndexes(category); }
+  };
+}
+
+global.Vocabulary = { categories, createAnswerLog, createScoreboard, createWheelWordPool, getCategoryName, getMixedWords, getTranslation, getWords, toCyrillic };
 })(typeof window !== "undefined" ? window : globalThis);
